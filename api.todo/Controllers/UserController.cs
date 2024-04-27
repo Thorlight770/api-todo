@@ -1,4 +1,5 @@
 ﻿using api.todo.Model;
+using api.todo.Model.Enum;
 using api.todo.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,11 +28,20 @@ namespace api.todo.Controllers
         [ProducesResponseType(typeof(ApiModel<User>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiModel<object>), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ApiModel<object>), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> InquiryUserDetails()
+        public async Task<IActionResult> InquiryUserDetails(string id)
         {
-            ApiModel<User> data = new ApiModel<User>();
+            ApiModel<User> response = new ApiModel<User>();
+            response.Data = new User();
+            response.Data = await _service.GetById(id);
+            if (response.Data != null)
+            {
+                response.TotalPage = 1;
+                response.RowPerPage = 1;
+                response.PageIndex = 0;
+                response.LogReff = Guid.NewGuid().ToString();
+            }
 
-            return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, data));
+            return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
         }
 
         [HttpPost]
@@ -44,17 +54,26 @@ namespace api.todo.Controllers
             ApiModel<Auth> response = new ApiModel<Auth>();
             response.Data = new Auth();
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var user = await _service.Login(request.Username ?? "", request.Password ?? "");
 
-            var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
-              _config["Jwt:Issuer"],
-              null,
-              expires: DateTime.Now.AddMinutes(5),
-              signingCredentials: credentials);
+            if (user != null)
+            {
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
-            response.Data.Token = token;
+                var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
+                  _config["Jwt:Issuer"],
+                  null,
+                  expires: DateTime.Now.AddMinutes(120),
+                  signingCredentials: credentials);
+
+                var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
+                response.Data.Token = token;
+            } 
+            else
+            {
+                response.Messages?.Add(new AdditionalMessage(HttpStatusCode.Unauthorized.ToString(), MessageType.ERROR, "Data Tidak Ada Di Database !", "Login"));
+            }
             return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
         }
     }

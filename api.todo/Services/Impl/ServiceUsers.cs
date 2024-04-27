@@ -1,6 +1,23 @@
-﻿namespace api.todo.Services.Impl
+﻿using api.todo.Model;
+using api.todo.Repository;
+
+namespace api.todo.Services.Impl
 {
     public class ServiceUsers : IServiceUsers
     {
+        private readonly IUserRepository _repository;
+        public ServiceUsers(IUserRepository repository)
+        {
+            _repository = repository;
+        }
+        public async Task<User> GetById(string id)
+        {
+            return await _repository.GetById(id);
+        }
+
+        public async Task<User> Login(string username, string password)
+        {
+            return await _repository.Login(username, password);
+        }
     }
 }

@@ -7,6 +7,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using api.todo.Repository;
 using api.todo.Repository.Impl;
+using StackExchange.Redis;
+using api.todo.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +39,17 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add services to the container.
 builder.Services.AddScoped<IServiceUsers, ServiceUsers>();
 
-//var connectionString = builder.Configuration.GetSection("Database:Connection").Get<string>();
-var connectionString = builder.Configuration.GetConnectionString("Connection");
+// Add Service cache redis
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetSection("RedisCacheURL").Get<string>();
+});
+
+var connectionDicionary = RedisConnection.GetConnectionDictionary(
+    "Redis", builder.Configuration.GetSection("RedisCacheURL").Get<string>());
+
+var connectionString = DBConnection.GetConnectionString(connectionDicionary);
+
 // Add service dbcontext
 builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString));
 

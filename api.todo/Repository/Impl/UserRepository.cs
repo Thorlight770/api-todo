@@ -13,14 +13,26 @@ namespace api.todo.Repository.Impl
             _context = context;
         }
 
-        public User Add(User user)
+        public async Task<User> Add(User user)
         {
-            throw new NotImplementedException();
+            user.ID = Guid.NewGuid().ToString();
+
+            _context.User.Add(user);
+            _context.SaveChanges();
+            return user;
         }
 
-        public bool Delete(string id)
+        public async Task<bool> Delete(string id)
         {
-            throw new NotImplementedException();
+            User data = _context.User.Where(x =>  x.ID == id).FirstOrDefault();
+            
+            if (data != null)
+            {
+                _context.User.Remove(data);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
         public async Task<User> GetById(string id)
@@ -33,9 +45,11 @@ namespace api.todo.Repository.Impl
             return _context.User.Select(x => x).Where(x => x.Email == username && x.Password == password).SingleOrDefault();
         }
 
-        public User Update(User user)
+        public async Task<User> Update(User user)
         {
-            throw new NotImplementedException();
+            _context.User.Update(user);
+            _context.SaveChanges();
+            return user;
         }
     }
 }

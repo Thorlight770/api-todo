@@ -10,6 +10,17 @@ namespace api.todo.Services.Impl
         {
             _repository = repository;
         }
+
+        public async Task<User> Add(User user)
+        {
+            return await _repository.Add(user);
+        }
+
+        public async Task<bool> Delete(string id)
+        {
+            return await _repository.Delete(id);
+        }
+
         public async Task<User> GetById(string id)
         {
             return await _repository.GetById(id);
@@ -18,6 +29,11 @@ namespace api.todo.Services.Impl
         public async Task<User> Login(string username, string password)
         {
             return await _repository.Login(username, password);
+        }
+
+        public async Task<User> Update(User user)
+        {
+            return await _repository.Update(user);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace api.todo.Model
 
         public ApiModel()
         {
+            if (string.IsNullOrEmpty(LogReff)) LogReff = Guid.NewGuid().ToString();
             Messages = new List<AdditionalMessage>();
         }
     }

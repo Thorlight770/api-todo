@@ -10,9 +10,9 @@ namespace api.todo.Repository
         #endregion
 
         #region CRUD
-        public User Add(User user);
-        public User Update(User user);
-        public bool Delete(string id);
+        public Task<User> Add(User user);
+        public Task<User> Update(User user);
+        public Task<bool> Delete(string id);
         #endregion
     }
 }

@@ -76,5 +76,67 @@ namespace api.todo.Controllers
             }
             return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
         }
+
+        [Authorize]
+        [HttpPost("Add")]
+        [ProducesResponseType(typeof(ApiModel<User>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Add([FromBody] User request)
+        {
+            ApiModel<User> response = new ApiModel<User>();
+            response.Data = new User();
+            response.Data = await _service.Add(request);
+            if (response.Data != null)
+            {
+                response.TotalPage = 1;
+                response.RowPerPage = 1;
+                response.PageIndex = 0;
+                response.LogReff = Guid.NewGuid().ToString();
+            }
+
+            return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
+        }
+
+        [Authorize]
+        [HttpPut("Update")]
+        [ProducesResponseType(typeof(ApiModel<User>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Update([FromBody] User request)
+        {
+            ApiModel<User> response = new ApiModel<User>();
+            response.Data = new User();
+            response.Data = await _service.Update(request);
+            if (response.Data != null)
+            {
+                response.TotalPage = 1;
+                response.RowPerPage = 1;
+                response.PageIndex = 0;
+                response.LogReff = Guid.NewGuid().ToString();
+            }
+
+            return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
+        }
+
+        [Authorize]
+        [HttpDelete("Delete")]
+        [ProducesResponseType(typeof(ApiModel<bool>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Delete([FromQuery] string id)
+        {
+            ApiModel<bool> response = new ApiModel<bool>();
+            response.Data = await _service.Delete(id);
+            if (response.Data != null)
+            {
+                response.TotalPage = 0;
+                response.RowPerPage = 0;
+                response.PageIndex = 0;
+                response.LogReff = Guid.NewGuid().ToString();
+            }
+
+            return await Task.FromResult(StatusCode((int)HttpStatusCode.OK, response));
+        }
     }
 }

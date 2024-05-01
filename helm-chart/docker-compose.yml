@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  web-api:
+    image: api-todo
+    container_name: api-todo-be
+    ports:
+      - 5000:5000
+    depends_on:
+      - redis
+      - db-sqlserver
+    networks:
+      - todo-network
+
+    links:
+      - "redis"
+      - "db-sqlserver"
+
+    environment:
+      - RedisConnection=redis
+
+  redis:
+    image: redis:latest
+    container_name: redis-compose
+    ports:
+      - 6379:6379
+    volumes:
+      - type: bind
+        source: D:/Lamaran/MINI PROJECT/Redis/Data/
+        target: /data
+    #  - type: bind
+    #    source: D:/Lamaran/MINI PROJECT/Redis/config
+    #    target: /usr/local/etc/redis
+    #command: ["/usr/local/etc/redis/redis.conf", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - todo-network
+
+  db-sqlserver:
+    image: mcr.microsoft.com/mssql/server
+    restart: always
+    container_name: db-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Uuxwp7Mcxo7Khy"
+      MSSQL_PID: "Express"
+    ports:
+      - 1433:1433
+    volumes:
+      - type: bind
+        source: D:/Lamaran/MINI PROJECT/SQLServer/Data
+        target: /var/opt/mssql/data
+    networks:
+      - sqlserver-net
+      - todo-network
+        
+    
+
+networks:
+  todo-network:
+    driver: bridge
+  sqlserver-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

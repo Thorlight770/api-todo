@@ -52,6 +52,12 @@ var connectionString = DBConnection.GetConnectionString(connectionDicionary);
 Console.WriteLine("[ConnectionString] - " + connectionString);
 
 // Add service dbcontext
+//builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString,
+//    sqlServerOptionsAction: sqlOptions =>
+//    {
+//        sqlOptions.EnableRetryOnFailure();
+//    })
+//);
 builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
@@ -62,16 +68,11 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-Console.WriteLine("[ENV NAME] - " + app.Environment.EnvironmentName);
-Console.WriteLine("[CEK ENV] - " + app.Environment.IsDevelopment());
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-//app.UseSwagger();
-//app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -1,16 +1,16 @@
 # Use the appropriate base image for your ASP.NET Core application
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 5001
 
 # Set the URL for the ASP.NET Core application
-ENV ASPNETCORE_URLS=http://*:5000
+ENV ASPNETCORE_URLS=http://+:5001
 
 # Set the ASP.NET Core environment to 'Development'
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Productions
 
 # Build and publish your ASP.NET Core application
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["api.todo/api.todo.csproj", "api.todo/"]
 RUN dotnet restore "api.todo/api.todo.csproj"

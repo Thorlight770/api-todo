@@ -12,6 +12,8 @@ using api.todo.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var env = builder.Environment;
+
 // Jwt configuration starts here
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
@@ -27,7 +29,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
          ValidateIssuerSigningKey = true,
          ValidIssuer = jwtIssuer,
          ValidAudience = jwtIssuer,
-         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? "")),
          ClockSkew = TimeSpan.Zero
      };
  });
@@ -39,25 +41,22 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Add services to the container.
 builder.Services.AddScoped<IServiceUsers, ServiceUsers>();
 
+string redisURL = builder.Configuration.GetSection("RedisEPV").Get<string>() ?? "";
+string dbEpvID = builder.Configuration.GetSection("Database:EpvID").Get<string>() ?? "";
+string dbName = builder.Configuration.GetSection("Database:Name").Get<string>() ?? "";
+
 // Add Service cache redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetSection("RedisCacheURL").Get<string>();
+    options.Configuration = redisURL;
 });
 
 var connectionDicionary = RedisConnection.GetConnectionDictionary(
-    "Redis", builder.Configuration.GetSection("RedisCacheURL").Get<string>());
+    "Redis", redisURL, dbEpvID);
 
-var connectionString = DBConnection.GetConnectionString(connectionDicionary);
+var connectionString = DBConnection.GetConnectionString(connectionDicionary, dbName);
 Console.WriteLine("[ConnectionString] - " + connectionString);
 
-// Add service dbcontext
-//builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString,
-//    sqlServerOptionsAction: sqlOptions =>
-//    {
-//        sqlOptions.EnableRetryOnFailure();
-//    })
-//);
 builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
@@ -68,11 +67,14 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -81,5 +83,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseMiddleware<ErrorHandlingGlobalMiddleware>();
 
 app.Run();

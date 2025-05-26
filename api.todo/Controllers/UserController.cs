@@ -78,7 +78,7 @@ namespace api.todo.Controllers
         }
 
         [Authorize]
-        [HttpPost("Add")]
+        [HttpPost]
         [ProducesResponseType(typeof(ApiModel<User>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]
@@ -99,7 +99,7 @@ namespace api.todo.Controllers
         }
 
         [Authorize]
-        [HttpPut("Update")]
+        [HttpPut]
         [ProducesResponseType(typeof(ApiModel<User>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]
@@ -120,7 +120,7 @@ namespace api.todo.Controllers
         }
 
         [Authorize]
-        [HttpDelete("Delete")]
+        [HttpDelete]
         [ProducesResponseType(typeof(ApiModel<bool>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ApiModel<object>), (int)HttpStatusCode.BadRequest)]

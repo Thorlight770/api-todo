@@ -6,7 +6,7 @@ namespace api.todo.Utils
     {
         private static readonly ConfigurationBuilder _config;
 
-        public static Dictionary<string, string> GetConnectionDictionary(string serverName, string endPoint)
+        public static Dictionary<string, string> GetConnectionDictionary(string serverName, string endPoint, string epvID)
         {
             var response = new Dictionary<string, string>();
             try
@@ -24,16 +24,15 @@ namespace api.todo.Utils
 
                     if (redisConnection.IsConnected)
                     {
-                        var port = redisCache.StringGet("port");
-                        var user = redisCache.StringGet("username");
-                        var password = redisCache.StringGet("password");
-                        var database = redisCache.StringGet("database");
+                        var port = redisCache.StringGet(epvID + "-" + "port");
+                        var user = redisCache.StringGet(epvID + "-" + "username");
+                        var password = redisCache.StringGet(epvID + "-" + "password");
+                        var server = redisCache.StringGet(epvID + "-" + "server");
 
-                        response.Add("Server", redisCache.StringGet("server").ToString());
-                        response.Add("Port", redisCache.StringGet("port").ToString());
-                        response.Add("Database", redisCache.StringGet("database").ToString());
-                        response.Add("Username", redisCache.StringGet("username").ToString());
-                        response.Add("Password", redisCache.StringGet("password").ToString());
+                        response.Add("Port", port);
+                        response.Add("Username", user);
+                        response.Add("Password", password);
+                        response.Add("Server", server);
                     }
                     else throw new Exception("Redis Connection Failed !");
                 }

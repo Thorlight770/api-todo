@@ -9,7 +9,7 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}\\api.todo\\api.todo.csproj",
-            "launchConfigurationId": "TargetFramework=;api.todo"
+            "launchConfigurationId": "TargetFramework=;api.todo",
         }
     ]
 }

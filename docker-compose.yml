@@ -2,6 +2,9 @@ version: "3.8"
 
 services:
   api-todo-be:
+    build:
+      context: ./
+      dockerfile: Dockerfile
     image: api-todo
     container_name: api-todo-be
     ports:
@@ -10,6 +13,7 @@ services:
       - redis-epv-network
       - sqlserver-network
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - RedisConnection=redis
 
 networks:

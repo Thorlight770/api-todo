@@ -7,15 +7,19 @@ EXPOSE 5001
 ENV ASPNETCORE_URLS=http://+:5001
 
 # Set the ASP.NET Core environment to 'Development'
-ENV ASPNETCORE_ENVIRONMENT=Productions
+ENV ASPNETCORE_ENVIRONMENT=Development
 
 # Build and publish your ASP.NET Core application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["api.todo/api.todo.csproj", "api.todo/"]
-RUN dotnet restore "api.todo/api.todo.csproj"
-COPY . .
-RUN dotnet build "api.todo/api.todo.csproj" -c Release -o /app/build
+
+COPY ../nuget.config ./nuget.config
+COPY ../local-package ./local-package
+COPY . ./api.todo
+
+WORKDIR /src/api.todo
+
+RUN dotnet restore --configfile ./nuget.config
 
 FROM build AS publish
 RUN dotnet publish "api.todo/api.todo.csproj" -c Release -o /app/publish

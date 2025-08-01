@@ -9,5 +9,6 @@ namespace api.todo.Services
         public Task<User> Add(User user);
         public Task<User> Update(User user);
         public Task<bool> Delete(string id);
+        public Task<List<TrackStep>> ListTrack(long requestMasterID);
     }
 }

@@ -7,6 +7,7 @@ namespace api.todo.Repository
         #region Inquiry
         public Task<User> GetById(string id);
         public Task<User> Login(string username, string password);
+        public Task<List<TrackStep>> ListTrack(long requestMasterID);
         #endregion
 
         #region CRUD

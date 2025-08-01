@@ -7,16 +7,32 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using api.todo.Repository;
 using api.todo.Repository.Impl;
-using StackExchange.Redis;
 using api.todo.Utils;
+using Commond_Lib.Database;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddJsonConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 var env = builder.Environment;
 
 // Jwt configuration starts here
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+
+// Tambahkan CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost5173", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
  .AddJwtBearer(options =>
@@ -42,6 +58,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IServiceUsers, ServiceUsers>();
 
 string redisURL = builder.Configuration.GetSection("RedisEPV").Get<string>() ?? "";
+Console.WriteLine("[RedisURL] " + redisURL);
 string dbEpvID = builder.Configuration.GetSection("Database:EpvID").Get<string>() ?? "";
 string dbName = builder.Configuration.GetSection("Database:Name").Get<string>() ?? "";
 
@@ -51,8 +68,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = redisURL;
 });
 
-var connectionDicionary = RedisConnection.GetConnectionDictionary(
-    "Redis", redisURL, dbEpvID);
+//var connectionDicionary = RedisConnection.GetConnectionDictionary(
+//    "Redis", redisURL, dbEpvID);
+
+var connectionDicionary = ClsEPV.GetEPV(redisURL, dbName, dbEpvID);
 
 var connectionString = DBConnection.GetConnectionString(connectionDicionary, dbName);
 Console.WriteLine("[ConnectionString] - " + connectionString);
@@ -66,12 +85,21 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var logger = app.Logger;
+logger.LogInformation("Logger working!");
+
+
+
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {
 //     app.UseSwagger();
 //     app.UseSwaggerUI();
 // }
+
+// Aktifkan CORS
+app.UseCors("AllowLocalhost5173");
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
